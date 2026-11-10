@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Research · Anush Bharathi R</title>
+<meta name="description" content="Research direction, publications, talk and dataset.">
+<script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Red+Hat+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css?v=bd501245">
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav"><div class="wrap">
+<a class="brand" href="index.html">Anush Bharathi R</a>
+<a class="l" href="timeline.html">Timeline</a>
+<a class="l" href="research.html" aria-current="page">Research</a>
+<a class="l" href="about.html">About</a>
+<button class="theme" type="button" aria-label="Switch colour mode"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/></svg></button>
+</div></header>
+<main id="main">
+<header class="page-head"><div class="wrap">
+<p class="eyebrow">Research</p>
+<h1>Research</h1>
+<p>I work on AI for engineering design whose output an engineer can open, check and change. Two papers are published,
+one is in preparation, and three systems have been built with industry.</p>
+</div></header>
+
+<section class="block"><div class="wrap prose">
+<h2 class="sec" id="s1"><span class="bn">1</span>Direction</h2>
+<p>My research question is how to give design software an explicit, verifiable representation of a product's
+engineering state: its variables, the dependencies between them and the limits within which the design stays valid.
+Engineers and AI agents can share such a representation, inspect it, and check it against geometry, physics and
+standards.</p>
+<p>A CAD file records geometry and, at best, the feature history that produced it. The reasons behind a dimension,
+such as the clearance a standard requires, usually live outside the file. An edit made by a language model then has
+nothing to be checked against. I call the missing layer a verifiable intermediate representation, and each project
+below works on one part of it.</p>
+<ul>
+<li><b>Recovering it from existing parts.</b> <a href="projects/abra-cad.html">Abra-CAD</a> rebuilds an editable CAD
+program from a mesh, point cloud, B-rep, drawing or render.</li>
+<li><b>Editing it safely.</b> In the <a href="projects/te-busbar.html">TE busbar system</a>, engineers and an LLM edit
+the same design state, and a geometry solver checks every change before CAD regenerates.</li>
+<li><b>Checking a made part against it.</b> <a href="projects/abi-inspection.html">ABI inspection</a> places detections
+on the part's CAD model, and <a href="projects/synthdefect.html">SynthDefect-CAD</a> compiles public standards into
+rules over CAD regions.</li>
+<li><b>The data underneath.</b> <a href="projects/mm-cad.html">MM-CAD</a> aligns five descriptions of each of 226K CAD
+models.</li>
+</ul>
+</div></section>
+
+<section class="block"><div class="wrap">
+<h2 class="sec" id="problems"><span class="bn">2</span>Problems, and what I built for each</h2>
+<p class="intro">Each row starts from a problem that a company, a group of engineers or a research field brought to me. The middle column is what I built for it, and the last column is the result so far.</p>
+<div class="map"><div class="map-h"><div>Problem</div><div>What I built</div><div>Result</div></div><div class="map-r"><div data-l="Problem"><span class="who">TE Connectivity</span><span class="pb">The CAD for one busbar design takes an engineer 3 to 4 days, and each trial of a change takes one to two minutes to regenerate.</span></div><div data-l="What I built">Parametric CAD automation. Engineers and a locally hosted LLM edit one explicit design state, and a geometry solver checks every change before Creo Parametric runs.</div><div data-l="Result" class="res"><b>8 to 12 minutes</b> per design in trial. 77% of reconstructions within 0.5 mm of the designer's busbar, leave-one-subject-out.<br><a class="arrow" href="projects/te-busbar.html">TE busbar design system </a></div></div>
+<div class="map-r"><div data-l="Problem"><span class="who">ABI Showatech</span><span class="pb">A shallow defect on a cast impeller blade looks like the rough cast surface around it under ordinary light.</span></div><div data-l="What I built">A photometric inspection prototype: a camera, a ring of lights and a rotary fixture reconstruct each blade surface, and every detection is placed on the part's CAD model.</div><div data-l="Result" class="res">Specified and prototyped against <b>10 to 15 s per part</b> and a 0.1 mm minimum actionable defect.<br><a class="arrow" href="projects/abi-inspection.html">ABI inspection </a></div></div>
+<div class="map-r"><div data-l="Problem"><span class="who">Brakes India</span><span class="pb">A production line has more combinations of process settings than anyone can trial, and each physical trial costs line time and material.</span></div><div data-l="What I built">Process-parameter models from production-line data, turned into recommended settings and a list of the trials to run next.</div><div data-l="Result" class="res"><b>96% accuracy</b> under leave-one-cluster-out cross-validation.<br><a class="arrow" href="projects/brakes-india.html">Brakes India process models </a></div></div>
+<div class="map-r"><div data-l="Problem"><span class="who">Design engineers</span><span class="pb">A new part in a company usually starts from an old one. Most CAD generation research starts from nothing.</span></div><div data-l="What I built">Retrieve-then-edit CAD: find the closest of 137,004 existing models and edit its command sequence, with the result opened as a Fusion 360 model.</div><div data-l="Result" class="res"><i>Journal of WSCG</i>, 2025. <b>40% faster inference</b> on consumer GPUs.<br><a class="arrow" href="projects/cad-rag.html">CAD-RAG </a></div></div>
+<div class="map-r"><div data-l="Problem"><span class="who">Reverse engineering</span><span class="pb">A scan, a mesh or a drawing gives the final shape of a part and none of the design history an engineer needs to change it.</span></div><div data-l="What I built">Abra-CAD: analytic fitting first, a small network for what the fit misses, and search for an exact CAD program.</div><div data-l="Result" class="res">On about 5,000 parts: <b>92.5%</b> of pattern counts, 97.5% of hole diameters and 95.0% of fillet radii recovered.<br><a class="arrow" href="projects/abra-cad.html">Abra-CAD </a></div></div>
+<div class="map-r"><div data-l="Problem"><span class="who">Inspection standards</span><span class="pb">A factory accepts or scraps a part against a named standard and quality level. An anomaly score carries neither.</span></div><div data-l="What I built">SynthDefect-CAD: public standards compiled into rules over regions of the part's CAD model.</div><div data-l="Result" class="res">Benchmark over <b>eight part families</b>, under construction.<br><a class="arrow" href="projects/synthdefect.html">SynthDefect-CAD </a></div></div>
+<div class="map-r"><div data-l="Problem"><span class="who">CAD research</span><span class="pb">No public dataset gave the same CAD model as a B-rep, a point cloud, text, sketches and images at scale.</span></div><div data-l="What I built">MM-CAD: 226K models with five aligned modalities, and a cross-modal retrieval benchmark.</div><div data-l="Result" class="res"><b>SGP 2026</b>, <i>Computer Graphics Forum</i>. Used by Metafold 3D in an independent benchmark.<br><a class="arrow" href="projects/mm-cad.html">MM-CAD </a></div></div></div>
+</div></section>
+
+<section class="block"><div class="wrap">
+<h2 class="sec" id="publications"><span class="bn">3</span>Publications</h2>
+<ol class="refs">
+<li><div>
+<p class="r-t">MM-CAD: A Multi-Modal CAD Dataset and Benchmark for Cross-Modal Geometric Learning</p>
+<p class="r-a"><b>A. Bharathi</b>, A. Ananthakrishnan, R. Muthuganapathy</p>
+<p class="r-v"><i>Computer Graphics Forum</i> 45(5), Proceedings of the Symposium on Geometry Processing (SGP) 2026</p>
+<p class="r-n">226K CAD models, each with a B-rep, a point cloud, text, sketches and images of the same part, and a
+benchmark for retrieval between them.</p>
+<p class="r-links"><a href="projects/mm-cad.html">Project page on this site</a><a href="https://doi.org/10.1111/cgf.70523">Paper (DOI)</a><a href="https://huggingface.co/datasets/exanos/MMCAD">Dataset</a><a href="https://github.com/exanos/MMCAD">Code</a><a href="https://www.youtube.com/watch?v=3-a2MjjOJT0">Talk</a><button type="button" data-bib="bib-mm">BibTeX</button></p>
+<pre class="bib" id="bib-mm" hidden>@article{bharathi2026mmcad,
+  author  = {Bharathi, A. and Ananthakrishnan, A. and Muthuganapathy, R.},
+  title   = {{MM-CAD}: A Multi-Modal {CAD} Dataset and Benchmark for
+             Cross-Modal Geometric Learning},
+  journal = {Computer Graphics Forum},
+  volume  = {45},
+  number  = {5},
+  year    = {2026},
+  doi     = {10.1111/cgf.70523}
+}</pre>
+</div></li>
+<li><div>
+<p class="r-t">A multi-modal retrieval augmented framework for user editable 3D CAD model generation</p>
+<p class="r-a">A. Ananthakrishnan, <b>A. Bharathi</b>, V. Dharanivendhan, M. Ramanathan</p>
+<p class="r-v"><i>Journal of WSCG</i>, 2025</p>
+<p class="r-n">A Transformer writes CAD command sequences from a sketch, text or a point cloud, and a retrieval system
+finds the closest of 137,004 existing models to edit.</p>
+<p class="r-links"><a href="projects/cad-rag.html">Project page on this site</a><a href="https://doi.org/10.24132/JWSCG.2025-11">Paper (DOI)</a><button type="button" data-bib="bib-wscg">BibTeX</button></p>
+<pre class="bib" id="bib-wscg" hidden>@article{ananthakrishnan2025cadrag,
+  author  = {Ananthakrishnan, A. and Bharathi, A. and Dharanivendhan, V.
+             and Ramanathan, M.},
+  title   = {A multi-modal retrieval augmented framework for user editable
+             {3D} {CAD} model generation},
+  journal = {Journal of WSCG},
+  year    = {2025},
+  doi     = {10.24132/JWSCG.2025-11}
+}</pre>
+</div></li>
+</ol>
+</div></section>
+
+<section class="block"><div class="wrap">
+<h2 class="sec" id="in-preparation"><span class="bn">4</span>In preparation</h2>
+<ul class="refs">
+<li><div>
+<p class="r-t">Abra-CAD: Fit What Is Observed, Learn What Is Missing, Search What Remains</p>
+<p class="r-a"><b>A. Bharathi</b>, R. Muthuganapathy</p>
+<p class="r-v">In preparation for CVPR 2027</p>
+<p class="r-n">Editable CAD programs from meshes, point clouds, B-reps, drawings and renders. On about 5,000 parts with
+known construction programs, structure recovery returns 92.5% of pattern and instance counts, 97.5% of hole diameters
+and 95.0% of fillet radii.</p>
+<p class="r-links"><a href="projects/abra-cad.html">Project page on this site</a></p>
+</div></li>
+<li><div>
+<p class="r-t">SynthDefect-CAD</p>
+<p class="r-v">Research in progress, ADOPT Lab, IIT Madras</p>
+<p class="r-n">Inspection as acceptance against a named standard and quality level, with rules compiled over regions of
+the part's CAD model. The benchmark covers eight part families that are cast, forged or machined, and is under
+construction.</p>
+<p class="r-links"><a href="projects/synthdefect.html">Project page on this site</a></p>
+</div></li>
+</ul>
+</div></section>
+
+<section class="block"><div class="wrap">
+<h2 class="sec" id="talk"><span class="bn">5</span>Talk <small>SGP 2026, Bern</small></h2>
+<p class="intro">I presented MM-CAD at the Symposium on Geometry Processing in Bern in July 2026. A Eurographics
+Widening Participation Scholarship funded the trip.</p>
+<figure class="vid"><video controls playsinline preload="none" width="1280" height="720" poster="assets/img/talk-industry.jpg" aria-label="MM-CAD at SGP 2026, 26 min 33 s. The talk covers the dataset, the sampling method, the retrieval benchmark and what industry asks of CAD models."><source src="assets/video/mmcad-talk.mp4" type="video/mp4">Your browser cannot play this video. <a href="assets/video/mmcad-talk.mp4">Download the file</a>.</video><figcaption><b>Video 1</b>MM-CAD at SGP 2026, 26 min 33 s. The talk covers the dataset, the sampling method, the retrieval benchmark and what industry asks of CAD models. <a class="yt" href="https://www.youtube.com/watch?v=3-a2MjjOJT0">Watch on YouTube</a></figcaption></figure>
+<div class="figs "><figure class="fig"><a href="assets/img/talk-landscape.jpg"><img src="assets/img/talk-landscape.jpg" width="1280" height="720" alt="Talk slide placing earlier shape datasets on an axis from organic to precise" loading="lazy" decoding="async"></a><figcaption><b>Fig. 1</b>From the talk: earlier shape datasets, arranged from organic shapes to precise CAD.</figcaption></figure><figure class="fig"><a href="assets/img/talk-pairs.jpg"><img src="assets/img/talk-pairs.jpg" width="1280" height="720" alt="Talk slide with four CAD renders, each beside its photoreal image" loading="lazy" decoding="async"></a><figcaption><b>Fig. 2</b>From the talk: CAD renders and the photoreal images generated from them.</figcaption></figure></div>
+
+</div></section>
+
+<section class="block"><div class="wrap prose">
+<h2 class="sec" id="dataset"><span class="bn">6</span>Dataset and code</h2>
+<p>MM-CAD is public. The dataset, the code and the trained checkpoints are at the links below.</p>
+<ul class="list">
+<li><span class="dim">Dataset</span><span><a href="https://huggingface.co/datasets/exanos/MMCAD">huggingface.co/datasets/exanos/MMCAD</a></span></li>
+<li><span class="dim">Code</span><span><a href="https://github.com/exanos/MMCAD">github.com/exanos/MMCAD</a> <span>code and trained checkpoints</span></span></li>
+<li><span class="dim">Project page</span><span><a href="https://exanos.github.io/MMCAD">exanos.github.io/MMCAD</a></span></li>
+</ul>
+<p>The code and data for Abra-CAD and for the three industry systems stay with the lab and the partner companies.</p>
+</div></section>
+
+<section class="block"><div class="wrap prose">
+<h2 class="sec" id="vaiper"><span class="bn">7</span>Where the industry work continues</h2>
+<p>The TE Connectivity system belongs to a wider effort at IIT Madras. <a href="https://ed.iitm.ac.in/~palramu/vaiper.html">VAIPER</a> is a proposed
+IIT Madras Centre of Excellence for AI-native product engineering, with Prof. Palaniappan Ramu as principal
+investigator. The
+<a href="projects/desaign.html">desAIgn works</a> page describes how conversations with senior design engineers in 2024
+led to it.</p>
+</div></section>
+</main>
+<footer class="foot"><div class="wrap">
+<div><h2>Contact</h2><p><span class="sel">anushbharathi2411@gmail.com</span><br>Research Associate, AGC Lab, IIT Madras<br>Chennai, India</p></div>
+<div><h2>Elsewhere</h2><p><a href="https://github.com/exanos">github.com/exanos</a><br><a href="https://www.linkedin.com/in/exanos">linkedin.com/in/exanos</a><br><a href="https://exanos.github.io/MMCAD">exanos.github.io/MMCAD</a></p></div>
+<div><h2>Site</h2><p><a href="index.html">Home</a> · <a href="timeline.html">Timeline</a> · <a href="research.html">Research</a> · <a href="about.html">About</a><br>Diagrams on this site are drawn for it. Photos and videos are from the projects.</p></div>
+</div></footer>
+<script src="assets/site.js?v=bd501245"></script>
+</body>
+</html>
