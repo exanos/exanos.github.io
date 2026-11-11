@@ -53,40 +53,101 @@
     }
   }
 
-  /* sideways timeline: drag, wheel, year jumps, thread filter and the hover preview */
+  /* sideways timeline. The section is as tall as the timeline is wide; while it is pinned in view, the page's
+     ordinary vertical scroll moves the timeline sideways, so there is no separate scrollbar to find. */
   Array.prototype.forEach.call(document.querySelectorAll("[data-hz]"), function (hz) {
-    var view = hz.querySelector(".hz-view"), pop = hz.querySelector(".hz-pop");
-    if (!view || !pop) return;
+    var stick = hz.querySelector(".hz-stick"), view = hz.querySelector(".hz-view"), track = hz.querySelector(".hz-track");
+    var pop = hz.querySelector(".hz-pop");
+    if (!stick || !view || !track || !pop) return;
     var nodes = Array.prototype.slice.call(hz.querySelectorAll(".hz-n, .hz-e"));
+    var jumps = Array.prototype.slice.call(hz.querySelectorAll("[data-x]"));
     var canHover = !!(window.matchMedia && window.matchMedia("(hover: hover)").matches);
-    var smooth = reduce ? "auto" : "smooth";
-    var scale = function () { return parseFloat(getComputedStyle(hz).getPropertyValue("--k")) || 1; };
-    /* timeline page: on a short window, scale the wave down a little so its whole height is on screen */
-    if (hz.hasAttribute("data-wheel")) {
-      var track = hz.querySelector(".hz-track");
-      var fit = function () {
-        if (window.innerWidth <= 700) { hz.style.removeProperty("--k"); return; }
-        var top = view.getBoundingClientRect().top + window.pageYOffset;
-        var full = parseFloat(getComputedStyle(track).getPropertyValue("--H")) || 556;
-        var k = Math.max(0.74, Math.min(1, (window.innerHeight - top - 24) / full));
-        hz.style.setProperty("--k", k.toFixed(3));
-      };
-      fit();
-      window.addEventListener("resize", fit);
-      window.addEventListener("load", fit);
-    }
-    if (hz.getAttribute("data-start") === "end") view.scrollLeft = view.scrollWidth;
+    var W = 0, H = 0, k = 1, lead = 0, shift = 0, cur = 0, raf = 0;
 
-    Array.prototype.forEach.call(hz.querySelectorAll("[data-go]"), function (b) {
+    var layout = function () {
+      W = parseFloat(getComputedStyle(track).getPropertyValue("--W")) || 0;
+      H = parseFloat(getComputedStyle(track).getPropertyValue("--H")) || 400;
+      hz.style.height = "";
+      /* scale the drawing so the pinned view fits the window height */
+      var head = stick.querySelector(".hz-head");
+      var avail = stick.clientHeight - (head ? head.offsetHeight : 0) - 24;
+      k = Math.max(0.55, Math.min(window.innerWidth < 700 ? 0.82 : 1, avail / H));
+      hz.style.setProperty("--k", k.toFixed(3));
+      lead = parseFloat(getComputedStyle(track).marginLeft) || 0;
+      shift = Math.max(0, W * k + lead * 2 - view.clientWidth);
+      hz.style.height = (stick.offsetHeight + shift) + "px";
+      tick(true);
+    };
+    var progress = function () {
+      return Math.max(0, Math.min(shift, -hz.getBoundingClientRect().top));
+    };
+    var apply = function () { track.style.transform = "translate3d(" + (-cur).toFixed(1) + "px,0,0)"; };
+    var tick = function (now) {
+      var target = progress();
+      if (now || reduce) { cur = target; apply(); markYear(); return; }
+      if (!raf) raf = requestAnimationFrame(step);
+    };
+    /* a little easing on top of the scroll, so wheel steps glide instead of jump */
+    var step = function () {
+      var target = progress(), d = target - cur;
+      if (Math.abs(d) < 0.4) { cur = target; raf = 0; apply(); markYear(); return; }
+      cur += d * 0.22;
+      apply();
+      raf = requestAnimationFrame(step);
+    };
+    var markYear = function () {
+      var x = (cur + view.clientWidth * 0.35) / k - lead / k, on = null;
+      jumps.forEach(function (b) { if (Number(b.getAttribute("data-x")) <= x) on = b; });
+      jumps.forEach(function (b) { b.classList.toggle("on", b === on); });
+    };
+    /* the page scroll position that shows timeline x at the left */
+    var scrollFor = function (x) {
+      var top = hz.getBoundingClientRect().top + window.pageYOffset;
+      return top + Math.max(0, Math.min(shift, x * k - 24));
+    };
+    window.addEventListener("scroll", function () { tick(false); hide(); }, { passive: true });
+    window.addEventListener("resize", function () { hide(); layout(); });
+    window.addEventListener("load", layout);
+    layout();
+
+    jumps.forEach(function (b) {
       b.addEventListener("click", function () {
-        view.scrollBy({ left: Number(b.getAttribute("data-go")) * view.clientWidth * 0.7, behavior: smooth });
+        window.scrollTo({ top: scrollFor(Number(b.getAttribute("data-x"))), behavior: reduce ? "auto" : "smooth" });
       });
     });
-    Array.prototype.forEach.call(hz.querySelectorAll("[data-x]"), function (b) {
-      b.addEventListener("click", function () {
-        view.scrollTo({ left: Math.max(0, Number(b.getAttribute("data-x")) * scale() - 24), behavior: smooth });
-      });
+
+    /* sideways gestures (trackpad swipes, shift+wheel, drag, arrow keys) move the page scroll too */
+    view.addEventListener("wheel", function (e) {
+      var dx = e.shiftKey && !e.deltaX ? e.deltaY : e.deltaX;
+      if (!dx || Math.abs(dx) < Math.abs(e.deltaY) && !e.shiftKey) return;
+      e.preventDefault();
+      window.scrollBy(0, dx * (e.deltaMode === 1 ? 32 : 1));
+    }, { passive: false });
+    view.addEventListener("keydown", function (e) {
+      var d = e.key === "ArrowRight" ? 1 : e.key === "ArrowLeft" ? -1 : 0;
+      if (!d) return;
+      e.preventDefault();
+      window.scrollBy({ top: d * view.clientWidth * 0.5, behavior: reduce ? "auto" : "smooth" });
     });
+    var drag = null, moved = false;
+    view.addEventListener("pointerdown", function (e) {
+      if (e.pointerType !== "mouse" || e.button !== 0) return;
+      drag = { x: e.clientX, y: window.pageYOffset }; moved = false;
+    });
+    window.addEventListener("pointermove", function (e) {
+      if (!drag) return;
+      var dx = e.clientX - drag.x;
+      if (!moved && Math.abs(dx) < 6) return;
+      if (!moved) { moved = true; view.classList.add("drag"); hide(); }
+      window.scrollTo(0, drag.y - dx);
+    });
+    window.addEventListener("pointerup", function () {
+      if (!drag) return;
+      drag = null; view.classList.remove("drag");
+      setTimeout(function () { moved = false; }, 0);
+    });
+    view.addEventListener("click", function (e) { if (moved) { e.preventDefault(); e.stopPropagation(); } }, true);
+    view.addEventListener("dragstart", function (e) { e.preventDefault(); });
 
     /* thread filter (timeline page): dim what is outside the thread, keep every position */
     var btns = Array.prototype.slice.call(hz.querySelectorAll(".filters button"));
@@ -107,7 +168,7 @@
     }
 
     /* preview card */
-    var cur = null, tShow = 0, tHide = 0;
+    var on = null, tShow = 0, tHide = 0;
     var media = pop.querySelector(".hz-pm"), pimg = media.querySelector("img"), pdraw = media.querySelector(".hz-pdraw");
     var vid = media.querySelector("video"), open = pop.querySelector(".hz-po");
     var pmeta = pop.querySelector(".meta"), pdate = pmeta.querySelector(".dim"), pchip = pmeta.querySelector(".chip");
@@ -121,25 +182,25 @@
       if (vid.getAttribute("src")) { vid.removeAttribute("src"); try { vid.load(); } catch (e) {} }
       vid.hidden = true;
     };
-    var hide = function () {
+    function hide() {
       clearTimeout(tShow); clearTimeout(tHide);
-      if (!cur) return;
-      cur = null; pop.classList.remove("on"); pop.hidden = true; stopVideo();
-    };
+      if (!on) return;
+      on = null; pop.classList.remove("on"); pop.hidden = true; stopVideo();
+    }
     var place = function (n) {
-      var hr = hz.getBoundingClientRect(), vr = view.getBoundingClientRect(), nr = n.getBoundingClientRect();
+      var sr = stick.getBoundingClientRect(), vr = view.getBoundingClientRect(), nr = n.getBoundingClientRect();
       var w = pop.offsetWidth, hh = pop.offsetHeight;
-      var left = nr.left + nr.width / 2 - hr.left - w / 2;
-      left = Math.max(12, Math.min(left, hr.width - w - 12));
-      var top = n.classList.contains("up") ? nr.top - hr.top - 10 : nr.bottom - hr.top + 10 - hh;
-      top = Math.max(vr.top - hr.top + 8, Math.min(top, vr.bottom - hr.top - hh - 8));
-      pop.style.left = left + "px"; pop.style.top = top + "px";
+      var left = nr.left + nr.width / 2 - sr.left - w / 2;
+      left = Math.max(12, Math.min(left, sr.width - w - 12));
+      var top = n.classList.contains("dn") ? nr.top - sr.top - 8 : nr.bottom - sr.top + 8 - hh;
+      top = Math.max(vr.top - sr.top - 40, Math.min(top, sr.height - hh - 8));
+      pop.style.left = left + "px"; pop.style.top = Math.max(8, top) + "px";
     };
     var show = function (n) {
       clearTimeout(tShow); clearTimeout(tHide);
-      if (cur === n) return;
+      if (on === n) return;
       stopVideo();
-      cur = n;
+      on = n;
       var isEvent = n.classList.contains("hz-e"), href = n.getAttribute("href");
       var v = n.getAttribute("data-v"), p = n.getAttribute("data-p"), drawn = n.querySelector(".hz-th svg");
       media.hidden = isEvent;
@@ -165,110 +226,38 @@
       pop.hidden = false;
       place(n);
       if (reduce) pop.classList.add("on");
-      else requestAnimationFrame(function () { if (cur === n) pop.classList.add("on"); });
+      else requestAnimationFrame(function () { if (on === n) pop.classList.add("on"); });
     };
     nodes.forEach(function (n) {
       n.addEventListener("mouseenter", function () {
         if (!canHover || drag) return;
         clearTimeout(tHide); clearTimeout(tShow);
-        tShow = setTimeout(function () { show(n); }, cur ? 80 : 180);
+        tShow = setTimeout(function () { show(n); }, on ? 80 : 160);
       });
       n.addEventListener("mouseleave", function (e) {
         clearTimeout(tShow);
         if (e.relatedTarget && pop.contains(e.relatedTarget)) return;
         tHide = setTimeout(hide, 140);
       });
-      n.addEventListener("focus", function () { if (n.matches(":focus-visible")) show(n); });
+      n.addEventListener("focus", function () {
+        if (!n.matches(":focus-visible")) return;
+        var r = n.getBoundingClientRect();
+        if (r.left < 0 || r.right > window.innerWidth) window.scrollTo(0, scrollFor(parseFloat(n.style.getPropertyValue("--x")) - 120));
+        show(n);
+      });
       n.addEventListener("blur", function () { tHide = setTimeout(hide, 120); });
       n.addEventListener("click", function (e) {
-        if (canHover || cur === n) return;
+        if (canHover || on === n) return;
         e.preventDefault(); show(n);
       });
     });
     pop.addEventListener("mouseenter", function () { clearTimeout(tHide); });
     pop.addEventListener("mouseleave", function (e) {
-      if (cur && e.relatedTarget && cur.contains(e.relatedTarget)) return;
+      if (on && e.relatedTarget && on.contains(e.relatedTarget)) return;
       tHide = setTimeout(hide, 140);
     });
-    view.addEventListener("scroll", hide, { passive: true });
-    document.addEventListener("click", function (e) { if (cur && !hz.contains(e.target)) hide(); });
+    document.addEventListener("click", function (e) { if (on && !hz.contains(e.target)) hide(); });
     document.addEventListener("keydown", function (e) { if (e.key === "Escape") hide(); });
-    window.addEventListener("resize", hide);
-
-    /* eased sideways motion: the wheel and drag inertia both move the view from here */
-    var target = view.scrollLeft, raf = 0, coast = 0, vel = 0;
-    var maxLeft = function () { return Math.max(0, view.scrollWidth - view.clientWidth); };
-    var stopMotion = function () {
-      if (raf) { cancelAnimationFrame(raf); raf = 0; }
-      if (coast) { cancelAnimationFrame(coast); coast = 0; }
-      target = view.scrollLeft;
-    };
-    var ease = function () {
-      var diff = target - view.scrollLeft;
-      if (Math.abs(diff) < 0.5) { view.scrollLeft = target; raf = 0; return; }
-      var step = diff * 0.2;
-      if (Math.abs(step) < 1) step = diff > 0 ? Math.min(1, diff) : Math.max(-1, diff);
-      view.scrollLeft += step;
-      raf = requestAnimationFrame(ease);
-    };
-    view.addEventListener("scroll", function () { if (!raf && !coast) target = view.scrollLeft; }, { passive: true });
-    view.addEventListener("touchstart", stopMotion, { passive: true });
-
-    /* the wheel moves the timeline sideways (timeline page only), until it reaches an end */
-    if (hz.hasAttribute("data-wheel")) {
-      hz.addEventListener("wheel", function (e) {
-        if (e.ctrlKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-        var d = e.deltaY * (e.deltaMode === 1 ? 32 : e.deltaMode === 2 ? view.clientHeight : 1);
-        var max = maxLeft();
-        if (coast) { cancelAnimationFrame(coast); coast = 0; }
-        if (!raf) target = view.scrollLeft;
-        if ((d < 0 && target <= 0) || (d > 0 && target >= max - 1)) return;
-        e.preventDefault();
-        if (reduce) { view.scrollLeft += d; target = view.scrollLeft; return; }
-        target = Math.max(0, Math.min(max, target + d));
-        if (!raf) raf = requestAnimationFrame(ease);
-      }, { passive: false });
-    }
-
-    /* drag to pan with the mouse, with a little inertia on release */
-    var drag = null, moved = false, samples = [];
-    var glide = function () {
-      view.scrollLeft += vel;
-      vel *= 0.94;
-      var at = view.scrollLeft;
-      if (Math.abs(vel) < 0.3 || at <= 0 || at >= maxLeft() - 1) { coast = 0; target = view.scrollLeft; return; }
-      coast = requestAnimationFrame(glide);
-    };
-    view.addEventListener("pointerdown", function (e) {
-      if (e.pointerType !== "mouse" || e.button !== 0) return;
-      stopMotion();
-      drag = { x: e.clientX, s: view.scrollLeft }; moved = false;
-      samples = [{ x: e.clientX, t: performance.now() }];
-    });
-    window.addEventListener("pointermove", function (e) {
-      if (!drag) return;
-      var dx = e.clientX - drag.x;
-      if (!moved && Math.abs(dx) < 6) return;
-      if (!moved) { moved = true; view.classList.add("drag"); hide(); }
-      view.scrollLeft = drag.s - dx;
-      var now = performance.now();
-      samples.push({ x: e.clientX, t: now });
-      while (samples.length > 2 && now - samples[0].t > 100) samples.shift();
-    });
-    window.addEventListener("pointerup", function () {
-      if (!drag) return;
-      var wasMoved = moved;
-      drag = null; view.classList.remove("drag");
-      setTimeout(function () { moved = false; }, 0);
-      if (!wasMoved || reduce || samples.length < 2) return;
-      var first = samples[0], last = samples[samples.length - 1];
-      var dt = last.t - first.t;
-      if (dt <= 0 || performance.now() - last.t > 80) return;
-      vel = -((last.x - first.x) / dt) * 16.7;
-      if (Math.abs(vel) >= 0.3) coast = requestAnimationFrame(glide);
-    });
-    view.addEventListener("click", function (e) { if (moved) { e.preventDefault(); e.stopPropagation(); } }, true);
-    view.addEventListener("dragstart", function (e) { e.preventDefault(); });
   });
 
   /* home page feature cards: a short clip plays on hover, the thumbnail returns afterwards */
