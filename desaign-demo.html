@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>CAD demo · desAIgn works</title>
+<meta name="description" content="Search numbered CAD parts and edit their geometry.">
+<script>try{var t=localStorage.getItem("theme");if(t==="dark"||t==="light")document.documentElement.setAttribute("data-theme",t)}catch(e){}</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Red+Hat+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="assets/style.css?v=e0f59489">
+<link rel="stylesheet" href="assets/desaign.css?v=e0f59489">
+<script defer src="assets/desaign.js?v=e0f59489"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="nav"><div class="wrap">
+<a class="brand" href="index.html">Anush Bharathi R</a>
+<a class="l" href="timeline.html">Timeline</a>
+<a class="l" href="research.html">Research</a>
+<a class="l" href="about.html">CV</a>
+<button class="theme" type="button" aria-label="Switch colour mode"><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 1.75a6.25 6.25 0 0 1 0 12.5z" fill="currentColor"/></svg></button>
+</div></header>
+<main id="main">
+<div class="wrap dw-intro">
+<p class="crumb"><a href="projects/desaign.html">desAIgn works</a></p>
+<h1>CAD retrieval and editing demo</h1>
+</div>
+<section class="dw-section" id="workbench" aria-label="desAIgn works CAD workbench">
+  <div class="dw">
+    <header class="dw-bar">
+      <h2>Part library</h2>
+      <button type="button" data-action="expand">Full screen</button>
+    </header>
+    <div class="dw-toolbar" role="group" aria-label="Workbench mode">
+      <button type="button" class="dw-mode" data-mode="retrieve" aria-pressed="true">Retrieve and edit</button>
+      <button type="button" class="dw-mode" data-mode="sketch" aria-pressed="false">Sketch to solid</button>
+      <span id="dw-mode-note">Text and sketch search</span>
+    </div>
+    <div class="dw-grid">
+      <aside class="dw-library" aria-label="Part library">
+        <form class="dw-search">
+          <label for="dw-query">Find a part</label>
+          <div class="dw-inline"><input id="dw-query" type="search" placeholder="Description or part number"><button>Search</button></div>
+        </form>
+        <details class="dw-sketch">
+          <summary>Search with a sketch</summary>
+          <p id="dw-sketch-guide" hidden>Draw a closed outer profile and any holes inside it. Set an extrusion height to make a part.</p>
+          <canvas id="dw-sketch" width="260" height="156" aria-label="Draw a rough outline of the part"></canvas>
+          <div class="dw-inline dw-retrieval-tools">
+            <button type="button" data-action="upload">Upload sketch</button>
+            <input type="file" id="dw-sketch-file" accept="image/png,image/jpeg,image/webp" hidden>
+            <button type="button" data-action="stroke-undo">Undo stroke</button>
+            <button type="button" data-action="clear">Clear</button>
+          </div>
+          <p id="dw-sketch-status" role="status"></p>
+          <form id="dw-extrude" class="dw-feature" hidden>
+            <label for="dw-extrusion">Extrusion height (mm)</label>
+            <input id="dw-extrusion" type="number" min="1" max="150" value="12" required>
+            <button>Build solid</button>
+          </form>
+        </details>
+        <p class="dw-muted" id="dw-results-count" aria-live="polite"></p>
+        <div id="dw-results"></div>
+      </aside>
+      <div class="dw-model">
+        <div class="dw-model-bar">
+          <h3 id="dw-part-name"></h3>
+          <div class="dw-inline dw-views dw-view-actions" role="group" aria-label="Model views">
+            <button type="button" data-view="iso" aria-pressed="true">3D</button>
+            <button type="button" data-view="top" aria-pressed="false">Top</button>
+            <button type="button" data-view="front" aria-pressed="false">Front</button>
+            <button type="button" data-view="side" aria-pressed="false">Side</button>
+            <button type="button" data-action="fit">Fit</button>
+          </div>
+        </div>
+        <div id="dw-viewport" aria-label="Interactive 3D part model">
+          <div class="dw-comparison-labels" hidden><span>Original</span><span>Edited</span></div>
+        </div>
+        <div class="dw-model-info">
+          <span id="dw-size"></span>
+          <div class="dw-inline dw-compare" role="group" aria-label="Compare models">
+            <button type="button" data-version="edited" aria-pressed="true">Edited</button>
+            <button type="button" data-version="original" aria-pressed="false">Original</button>
+            <button type="button" data-version="compare" aria-pressed="false">Side by side</button>
+          </div>
+        </div>
+      </div>
+      <aside class="dw-edit" aria-label="Part editor">
+        <form id="dw-instruction">
+          <label for="dw-command">Describe a change</label>
+          <textarea id="dw-command" rows="2" placeholder="e.g. set slot length to 32 mm" required></textarea>
+          <button>Apply instruction</button>
+        </form>
+        <form id="dw-params" novalidate>
+          <h3>Dimensions</h3>
+          <div id="dw-fields"></div>
+          <button>Apply dimensions</button>
+        </form>
+        <div class="dw-checks">
+          <strong>Geometry checks</strong>
+          <p id="dw-message" role="status"></p>
+        </div>
+        <div class="dw-edits" hidden>
+          <h3>Changed dimensions</h3>
+          <ul id="dw-changes"></ul>
+        </div>
+        <div class="dw-inline">
+          <button type="button" data-action="undo" disabled>Undo</button>
+          <button type="button" data-action="reset" disabled>Reset part</button>
+        </div>
+        <details class="dw-history" open><summary>Construction steps</summary><ol id="dw-steps"></ol></details>
+        <div class="dw-inline dw-downloads dw-outputs">
+          <button type="button" data-action="stl">Download STL</button>
+          <button type="button" data-action="jscad" title="Download editable JSCAD source">Download JSCAD</button>
+        </div>
+      </aside>
+    </div>
+    <noscript><p>This workbench needs JavaScript to search and edit parts.</p></noscript>
+  </div>
+  <p class="dw-caption">Retrieve and edit a library part, or draw a closed profile and extrude a new one. Search, modelling, and exports run in your browser.</p>
+</section>
+
+</main>
+<footer class="foot"><div class="wrap">
+<div><h2>Contact</h2><p><span class="sel">anushbharathi2411@gmail.com</span><br>Project Associate, ADOPT Lab, IIT Madras<br>Chennai, India</p></div>
+<div><h2>Elsewhere</h2><p><a href="https://github.com/exanos">github.com/exanos</a><br><a href="https://www.linkedin.com/in/exanos">linkedin.com/in/exanos</a><br><a href="https://exanos.github.io/MMCAD">exanos.github.io/MMCAD</a></p></div>
+<div><h2>Site</h2><p><a href="index.html">Home</a> · <a href="timeline.html">Timeline</a> · <a href="research.html">Research</a> · <a href="about.html">CV</a><br>Diagrams on this site are drawn for it. Photos and videos are from the projects.</p></div>
+</div></footer>
+<script src="assets/site.js?v=e0f59489"></script>
+</body>
+</html>
