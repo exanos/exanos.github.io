@@ -18,6 +18,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Red+Hat+Mono:wght@400;500&display=swap">
 <link rel="stylesheet" href="../assets/style.css?v=f09a7fee">
 
+<script data-goatcounter="https://exanos.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -50,6 +51,9 @@
 <p>For responses the model handled well, I used interpretable self-organising maps. The map places similar designs near each other. Colouring the same grid by an input and then by the test result lets an engineer see where changes in the two tend to coincide.</p>
 <h2 class="sec" id="s2"><span class="bn">2</span>What the engineers got</h2>
 <div class="tbl-wrap"><table class="tbl"><caption>What the project delivered.</caption><thead><tr><th>Output</th><th>What it is for</th></tr></thead><tbody><tr><td>A data-collection plan</td><td>For each weak cluster: its priority, how many tests to add, and the parameter ranges to cover.</td></tr><tr><td>iSOM maps</td><td>Interactive maps showing where design inputs and test results vary together.</td></tr><tr><td>Directional guidance</td><td>For rattle, which clearances to move and in which direction, matching the company's own experiments.</td></tr><tr><td>Methods and code</td><td>The full analysis, documented so their team can rerun it on new data.</td></tr></tbody></table></div>
+<h2 class="sec" id="s3"><span class="bn">3</span>The workflow as a tool</h2>
+<p>The same workflow is now a tool, Data2Insights Copilot, in ADOPT Lab's <a href='https://ed.iitm.ac.in/~palramu/vaiper.html'>VAIPER</a> suite. An engineer loads past test data as it is, trains and compares models such as random forests and gradient boosting, sees which inputs drive a prediction, finds the closest batches already made, works backwards from a target result, and asks questions of the data in plain English. The video uses a brake-pad formulation as its example.</p>
+<figure class="vid"><video controls playsinline preload="none" width="1280" height="720" poster="../assets/img/brakes-d2i.jpg" aria-label="Data2Insights Copilot, the animated overview (1:35). Video by ADOPT Lab, IIT Madras; the full version on the VAIPER page continues into the app itself."><source src="../assets/video/brakes-d2i.mp4" type="video/mp4">Your browser cannot play this video. <a href="../assets/video/brakes-d2i.mp4">Download the file</a>.</video><figcaption><b>Video 1</b>Data2Insights Copilot, the animated overview (1:35). Video by ADOPT Lab, IIT Madras; the full version on the VAIPER page continues into the app itself.</figcaption></figure>
 </article>
 <aside class="rail" aria-label="Project context">
 
