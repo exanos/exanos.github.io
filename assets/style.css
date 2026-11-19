@@ -145,6 +145,7 @@ p { margin: 0 0 1em; }
 }
 .block { padding-block: clamp(28px, 4.5vw, 56px); }
 .block > .wrap > .intro { max-width: 40em; margin: -6px 0 26px; color: var(--ink); }
+.block > .wrap > .intro.direction { margin-top: -12px; color: var(--ink-2, var(--ink)); }
 
 .facts { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); margin: clamp(26px, 4vw, 46px) 0 0; border-top: 1.5px solid var(--ink); border-bottom: 1px solid var(--rule); }
 .facts > div { padding: 12px 20px 14px 0; min-width: 0; }

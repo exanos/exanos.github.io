@@ -4,10 +4,10 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>TE busbar design system · Anush Bharathi R</title>
-<meta name="description" content="With TE Connectivity: engineers and a local LLM edit one busbar design, and a solver proves each change before Creo rebuilds it. In trial, 3 to 4 days became 8 to 12 minutes.">
+<meta name="description" content="With TE Connectivity: engineers and a local LLM edit one busbar design, and a solver proves each change before Creo rebuilds it. 3 to 4 days became 8 to 12 minutes, and it is now deployed.">
 <meta property="og:type" content="website">
 <meta property="og:title" content="TE busbar design system · Anush Bharathi R">
-<meta property="og:description" content="With TE Connectivity: engineers and a local LLM edit one busbar design, and a solver proves each change before Creo rebuilds it. In trial, 3 to 4 days became 8 to 12 minutes.">
+<meta property="og:description" content="With TE Connectivity: engineers and a local LLM edit one busbar design, and a solver proves each change before Creo rebuilds it. 3 to 4 days became 8 to 12 minutes, and it is now deployed.">
 <meta property="og:image" content="https://exanos.github.io/assets/img/og-card.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="627">
@@ -16,7 +16,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,600;1,7..72,400&family=Red+Hat+Mono:wght@400;500&display=swap">
-<link rel="stylesheet" href="../assets/style.css?v=f09a7fee">
+<link rel="stylesheet" href="../assets/style.css?v=084df47e">
 
 <script data-goatcounter="https://exanos.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
@@ -34,13 +34,13 @@
 <p class="crumb"><a href="../timeline.html#cad">Timeline</a><span aria-hidden="true">/</span><span class="chip" data-thread="cad">CAD thread · rev D</span><span>Jun 2026 &ndash; now</span></p>
 <div class="p-top">
 <div><h1 class="p-title">A busbar design system where no change reaches CAD unproven</h1><div class="prob"><h2>The problem</h2><p>TE Connectivity is one of the world's largest makers of connectors and sensors, and it designs busbars, the solid metal conductors that carry power inside electrical equipment. The CAD for one busbar design takes an engineer 3 to 4 days. A language model can read a request, but it cannot be relied on to write geometry, and an engineer will not accept an edit that nobody has checked.</p></div></div>
-<dl class="tb"><dt>Role</dt><dd>AI for CAD workstream</dd><dt>With</dt><dd>Lokesh Dandumahanti (requirements and sizing), Vinay Ramanath (technical coordination)</dd><dt>Company</dt><dd>TE Connectivity, a global maker of connectors and sensors</dd><dt>Where</dt><dd>ADOPT Lab, IIT Madras, with TE Connectivity India, Bengaluru</dd><dt>Status</dt><dd>In trial on TE's internal environment</dd></dl>
+<dl class="tb"><dt>Role</dt><dd>AI for CAD workstream</dd><dt>With</dt><dd>Lokesh Dandumahanti (requirements and sizing), Vinay Ramanath (technical coordination)</dd><dt>Company</dt><dd>TE Connectivity, a global maker of connectors and sensors</dd><dt>Where</dt><dd>ADOPT Lab, IIT Madras, with TE Connectivity India, Bengaluru</dd><dt>Status</dt><dd>Deployed in AWS containers on TE's intranet</dd></dl>
 </div>
 </div></header>
 <section class="stage" aria-label="Lead figure"><div class="wrap"><figure><video controls playsinline preload="none" width="1920" height="1080" poster="../assets/img/te-2.jpg" aria-label="Screen recording of the system inside Creo Parametric, 6 min 11 s. A request is typed, the solver answers, and the proven change is pushed to the native model."><source src="../assets/video/te.mp4" type="video/mp4">Your browser cannot play this video. <a href="../assets/video/te.mp4">Download the file</a>.</video><figcaption>Screen recording of the system inside Creo Parametric, 6 min 11 s. A request is typed, the solver answers, and the proven change is pushed to the native model.</figcaption></figure></div></section>
 <div class="wrap p-body">
 <article class="prose">
-<div class="idea"><h2>The idea</h2><p>The engineer and the model change the same short list of design parameters, and neither writes geometry directly. A solver checks every change in milliseconds, before the CAD software runs, and refuses the ones it cannot prove. In trial, a design took 8 to 12 minutes.</p></div>
+<div class="idea"><h2>The idea</h2><p>The engineer and the model change the same short list of design parameters, and neither writes geometry directly. A solver checks every change in milliseconds, before the CAD software runs, and refuses the ones it cannot prove. In TE's trial a design took 8 to 12 minutes, and the system is now deployed for its engineers.</p></div>
 <h2 class="sec" id="s1"><span class="bn">1</span>Background</h2>
 <p>A busbar is a solid metal conductor that distributes power inside electrical equipment. TE designs them to requests like the one typed in the video: a current, an ambient temperature, a maximum temperature and a length. Producing the CAD for one design takes an engineer 3 to 4 days, and a single change can move several dimensions at once.</p>
 <p>The hard part is trust. Each trial of a change in CAD takes one to two minutes to rebuild. A language model can read a request, but it cannot be relied on to write geometry, and an engineer will not accept an edit that nobody has checked.</p>
@@ -61,8 +61,8 @@
 <p>What came out is less an AI tool than a design tool that an AI can also use.</p>
 <figure class="fig"><a href="../assets/img/te-4.jpg"><img src="../assets/img/te-4.jpg" width="1600" height="900" alt="Close view of a layered busbar assembly in Creo Parametric" loading="lazy" decoding="async"></a><figcaption><b>Fig. 5</b>The native Creo assembly after a rebuild, with its layers in separate colours.</figcaption></figure>
 <h2 class="sec" id="s5"><span class="bn">5</span>Results</h2>
-<div class="stats"><div><b>8&ndash;12 min</b><span>per design in the system, against 3 to 4 days by hand</span></div><div><b>77%</b><span>of reconstructions within 0.5 mm of the human designer's busbar</span></div></div>
-<p>The 77% comes from a side-by-side test against busbars drawn by TE's designers, holding out one designer at a time. The system is deployed on TE's internal environment in Bengaluru, where it is in trial, and I present it in monthly reviews to TE's global busbar engineering leadership.</p>
+<div class="stats"><div><b>8&ndash;12 min</b><span>per design in the trial, against 3 to 4 days by hand</span></div><div><b>77%</b><span>of reconstructions within 0.5 mm of the human designer's busbar</span></div></div>
+<p>The 77% comes from a side-by-side test against busbars drawn by TE's designers, holding out one designer at a time. After the trial in Bengaluru the system was deployed in AWS containers on TE's intranet, where engineering teams in China, the US and India can reach it. I present it in monthly reviews to TE's global busbar engineering leadership.</p>
 <p>I led the CAD automation. Lokesh Dandumahanti led the requirements and sizing work.</p>
 <h2 class="sec" id="s6"><span class="bn">6</span>What's next</h2>
 <p>Today the design space is written by hand: which parameters exist, how they depend on each other and where their limits are. That was the slowest part of the project. The question I want to work on next is whether that structure can be recovered from a family's existing CAD models and engineering records, so the same kind of system can be set up for a new product family without writing it all down first.</p>
@@ -84,6 +84,6 @@
 <div><h2>Elsewhere</h2><p><a href="https://github.com/exanos">github.com/exanos</a><br><a href="https://www.linkedin.com/in/exanos">linkedin.com/in/exanos</a><br><a href="https://exanos.github.io/MMCAD">exanos.github.io/MMCAD</a></p></div>
 <div><h2>Site</h2><p><a href="../index.html">Home</a> · <a href="../timeline.html">Timeline</a> · <a href="../research.html">Research</a> · <a href="../about.html">CV</a><br>Diagrams on this site are drawn for it. Photos and videos are from the projects.</p></div>
 </div></footer>
-<script src="../assets/site.js?v=f09a7fee"></script>
+<script src="../assets/site.js?v=084df47e"></script>
 </body>
 </html>
