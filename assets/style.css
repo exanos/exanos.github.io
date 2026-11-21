@@ -555,3 +555,12 @@ details.more ul { margin: 0 0 12px; padding-left: 1.2em; }
 .idea { margin: 0 0 2.2em; padding: 14px 0 16px; border-top: 1.5px solid var(--ink); border-bottom: 1px solid var(--rule); }
 .idea p { font-size: 1.06rem; line-height: 1.58; margin: 0; }
 .fig.loop video { display: block; width: 100%; height: auto; background: var(--stage); border: 1px solid var(--rule); }
+
+/* Point-cloud viewer (site.js): poster image first, canvas on top once loaded */
+.fig.pc3d .pc3d-box { position: relative; aspect-ratio: 16 / 9; background: #111113; border: 1px solid var(--rule); overflow: hidden; }
+.fig.pc3d .pc3d-box img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.fig.pc3d .pc3d-box canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: grab; touch-action: pan-y; }
+.fig.pc3d .pc3d-box canvas:active { cursor: grabbing; }
+.fig.pc3d .pc3d-hint { position: absolute; right: .6em; bottom: .5em; z-index: 1; font: 11px/1 var(--mono, monospace); color: #bbb; opacity: 0; transition: opacity .4s; pointer-events: none; }
+.fig.pc3d .pc3d-box.live .pc3d-hint { opacity: .8; }
+.fig.pc3d .pc3d-box.used .pc3d-hint { opacity: 0; }

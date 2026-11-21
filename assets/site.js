@@ -286,6 +286,79 @@
     });
   }
 
+  /* Point clouds: a still poster until scrolled to, then a WebGL view the reader can drag to turn.
+     Data file: int16 xyz (centred, scaled to +-32767, z up) for every point, then uint8 rgb for every point. */
+  Array.prototype.forEach.call(document.querySelectorAll(".pc3d-box[data-src]"), function (box) {
+    var started = false;
+    function start() {
+      if (started) return; started = true;
+      var cv = document.createElement("canvas");
+      var gl = cv.getContext("webgl", { antialias: true, alpha: false });
+      if (!gl) return;  // keep the poster
+      fetch(box.getAttribute("data-src")).then(function (r) { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(function (buf) {
+        var n = buf.byteLength / 9;
+        var pos = new Int16Array(buf, 0, n * 3), col = new Uint8Array(buf, n * 6, n * 3);
+        function sh(type, src) { var s = gl.createShader(type); gl.shaderSource(s, src); gl.compileShader(s); return s; }
+        var pr = gl.createProgram();
+        gl.attachShader(pr, sh(gl.VERTEX_SHADER,
+          "attribute vec3 p;attribute vec3 c;uniform mat4 m;uniform float ps;varying vec3 vc;" +
+          "void main(){vec4 q=m*vec4(p/32767.0,1.0);gl_Position=q;gl_PointSize=clamp(ps/q.w,1.0,6.0);vc=c*1.15;}"));
+        gl.attachShader(pr, sh(gl.FRAGMENT_SHADER,
+          "precision mediump float;varying vec3 vc;void main(){vec2 d=gl_PointCoord-0.5;if(dot(d,d)>0.25)discard;gl_FragColor=vec4(vc,1.0);}"));
+        gl.linkProgram(pr); gl.useProgram(pr);
+        function attr(name, data, size, type, norm) {
+          var b = gl.createBuffer(); gl.bindBuffer(gl.ARRAY_BUFFER, b); gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+          var l = gl.getAttribLocation(pr, name); gl.enableVertexAttribArray(l); gl.vertexAttribPointer(l, size, type, norm, 0, 0);
+        }
+        attr("p", pos, 3, gl.SHORT, false); attr("c", col, 3, gl.UNSIGNED_BYTE, true);
+        var um = gl.getUniformLocation(pr, "m"), ups = gl.getUniformLocation(pr, "ps");
+        gl.enable(gl.DEPTH_TEST); gl.clearColor(0.067, 0.067, 0.075, 1);
+        var yaw0 = 0.6, pitch0 = 0.42, yaw = yaw0, pitch = pitch0, drag = null, last = 0, idle = 0, visible = true;
+        function frame(t) {
+          var dt = last ? Math.min(t - last, 50) : 16; last = t;
+          if (!drag && !reduce && t > idle) yaw += dt * 0.00012;
+          var w = box.clientWidth, h = box.clientHeight, dpr = Math.min(window.devicePixelRatio || 1, 2);
+          if (cv.width !== Math.round(w * dpr) || cv.height !== Math.round(h * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+          gl.viewport(0, 0, cv.width, cv.height); gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+          var cy = Math.cos(yaw), sy = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch);
+          var f = 2.2, a = cv.width / cv.height, D = 1.9, nr = 0.05, fr = 10;
+          // view = rotate about z (yaw), tilt about x (pitch), push back D; columns for gl (column-major)
+          var r0 = [cy, -sy, 0], r1 = [cp * sy, cp * cy, -sp], r2 = [sp * sy, sp * cy, cp];  // rows: x, depth, up
+          var A = (fr + nr) / (nr - fr), B = 2 * fr * nr / (nr - fr);
+          var m = new Float32Array([
+            f / a * r0[0], f * r2[0], -A * r1[0], r1[0],
+            f / a * r0[1], f * r2[1], -A * r1[1], r1[1],
+            f / a * r0[2], f * r2[2], -A * r1[2], r1[2],
+            0, 0, -A * D + B, D]);
+          gl.uniformMatrix4fv(um, false, m); gl.uniform1f(ups, 2.2 * dpr);
+          gl.drawArrays(gl.POINTS, 0, n);
+          if (visible) requestAnimationFrame(frame);
+        }
+        box.appendChild(cv); box.classList.add("live");
+        cv.addEventListener("pointerdown", function (e) { drag = [e.clientX, e.clientY, yaw, pitch]; cv.setPointerCapture(e.pointerId); box.classList.add("used"); });
+        cv.addEventListener("pointermove", function (e) {
+          if (!drag) return;
+          yaw = drag[2] + (e.clientX - drag[0]) * 0.008;
+          pitch = Math.max(-0.1, Math.min(1.3, drag[3] + (e.clientY - drag[1]) * 0.006));
+        });
+        function up() { drag = null; idle = performance.now() + 2500; }
+        cv.addEventListener("pointerup", up); cv.addEventListener("pointercancel", up);
+        cv.addEventListener("dblclick", function () { yaw = yaw0; pitch = pitch0; });
+        if ("IntersectionObserver" in window) {
+          new IntersectionObserver(function (es) {
+            var was = visible; visible = es[0].isIntersecting;
+            if (visible && !was) { last = 0; requestAnimationFrame(frame); }
+          }).observe(box);
+        }
+        requestAnimationFrame(frame);
+      }).catch(function () {});
+    }
+    if ("IntersectionObserver" in window) {
+      var io = new IntersectionObserver(function (es) { if (es[0].isIntersecting) { io.disconnect(); start(); } }, { rootMargin: "200px" });
+      io.observe(box);
+    } else { start(); }
+  });
+
   /* BibTeX: show and copy */
   Array.prototype.forEach.call(document.querySelectorAll("[data-bib]"), function (b) {
     b.addEventListener("click", function () {
